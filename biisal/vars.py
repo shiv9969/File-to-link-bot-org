@@ -13,7 +13,7 @@ bisal_grp = "https://t.me/REQUESTING_MOVIES_SERIES_GROUPS"
 class Var(object):
     MULTI_CLIENT = False
     API_ID = int(getenv('API_ID', '9301087'))
-    API_HASH = str(getenv('API_HASH', 'cbabdb3f23de6326352ef3ac26338d9c'))
+    API_HASH = str(getenv('API_HASH', ''))
     BOT_TOKEN = str(getenv('BOT_TOKEN', ''))
     name = str(getenv('name', 'FToLStreamBot'))
     SLEEP_THRESHOLD = int(getenv('SLEEP_THRESHOLD', '60'))
@@ -41,6 +41,6 @@ class Var(object):
         URL = "http://{}/".format(FQDN)
     DATABASE_URL = str(getenv('DATABASE_URL', ''))
     UPDATES_CHANNEL = str(getenv('UPDATES_CHANNEL', 'BoB_Files1')) 
-    BANNED_CHANNELS = list(set(int(x) for x in str(getenv("BANNED_CHANNELS", "")).split()))   
-    BAN_CHNL = list(set(int(x) for x in str(getenv("BAN_CHNL", "")).split()))   
+    BANNED_CHANNELS = list(set(int(x) for x in str(getenv("BANNED_CHANNELS", "")).split() if x.lstrip("-").isdigit()))   
+    BAN_CHNL = list(set(int(x) for x in str(getenv("BAN_CHNL", "")).split() if x.lstrip("-").isdigit()))   
     
