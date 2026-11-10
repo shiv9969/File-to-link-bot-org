@@ -5,9 +5,9 @@ from pathlib import Path
 import jinja2
 
 from biisal.vars import Var
+from biisal.bot import StreamBot
 from biisal.utils.human_readable import humanbytes
 from biisal.utils.file_properties import get_file_ids
-from biisal.server.exceptions import FIleNotFound
 
 
 _TEMPLATE_DIR = Path(__file__).resolve().parent.parent / "template"
@@ -20,7 +20,7 @@ _TEMPLATE_ENV = jinja2.Environment(
 async def render_page(message_id, secure_hash, src=None):
     file_data = await get_file_ids(
         # The BIN channel is the authoritative source for streamed files.
-        __import__("biisal.bot", fromlist=["StreamBot"]).StreamBot,
+        StreamBot,
         int(Var.BIN_CHANNEL),
         int(message_id),
     )
