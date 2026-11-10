@@ -6,6 +6,14 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
+
+
+def _as_bool(value, default=False):
+    if value is None:
+        return default
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
 bot_name = "BoB Link Generator"
 bisal_channel = "https://telegram.me/BoB_Files1"
 bisal_grp = "https://t.me/REQUESTING_MOVIES_SERIES_GROUPS"
@@ -25,15 +33,16 @@ class Var(object):
     PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))  # 20 minutes
     OWNER_ID = set(int(x) for x in os.environ.get("OWNER_ID", "1525203313").split())  
     NO_PORT = _as_bool(getenv('NO_PORT', 'false'))
-    APP_NAME = None
-    OWNER_USERNAME = str(getenv('OWNER_USERNAME', 'Assaulter_Shiv'))
-    if 'DYNO' in environ:
-        ON_HEROKU = True
-        APP_NAME = str(getenv('APP_NAME')) #dont need to fill anything here
-    
+    APP_NAME = str(getenv("APP_NAME", "")).strip()
+    OWNER_USERNAME = str(getenv("OWNER_USERNAME", "Assaulter_Shiv"))
+    ON_HEROKU = "DYNO" in environ
+
+    if ON_HEROKU:
+        FQDN = str(getenv("FQDN", "")).strip() or (
+            f"{APP_NAME}.herokuapp.com" if APP_NAME else ""
+        )
     else:
-        ON_HEROKU = False
-    FQDN = str(getenv('FQDN', 'BIND_ADRESS:PORT')) if not ON_HEROKU or getenv('FQDN', '') else APP_NAME+'.herokuapp.com'
+        FQDN = str(getenv("FQDN", "")).strip() or f"{BIND_ADRESS}:{PORT}"
     HAS_SSL = _as_bool(getenv('HAS_SSL', 'true'), default=True)
     if HAS_SSL:
         URL = "https://{}/".format(FQDN)
