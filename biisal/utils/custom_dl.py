@@ -7,7 +7,7 @@ from biisal.bot import work_loads
 from pyrogram import Client, utils, raw
 from .file_properties import get_file_ids
 from pyrogram.session import Session, Auth
-from pyrogram.errors import AuthBytesInvalid
+from pyrogram.errors import AuthBytesInvalid, FloodWait
 from biisal.server.exceptions import FIleNotFound
 from pyrogram.file_id import FileId, FileType, ThumbnailSource
 
@@ -177,13 +177,23 @@ class ByteStreamer:
             media_session = await self.generate_media_session(self.client, file_id)
             location = await self.get_location(file_id)
             for part_number in range(part_count):
-                result = await media_session.send(
-                    raw.functions.upload.GetFile(
-                        location=location,
-                        offset=offset + (part_number * chunk_size),
-                        limit=chunk_size,
-                    )
-                )
+                while True:
+                    try:
+                        result = await media_session.send(
+                            raw.functions.upload.GetFile(
+                                location=location,
+                                offset=offset + (part_number * chunk_size),
+                                limit=chunk_size,
+                            )
+                        )
+                        break
+                    except FloodWait as exc:
+                        wait_seconds = int(getattr(exc, "value", getattr(exc, "x", 1)))
+                        logging.warning(
+                            "Telegram download FloodWait: sleeping for %s seconds",
+                            wait_seconds,
+                        )
+                        await asyncio.sleep(max(1, wait_seconds))
                 if not isinstance(result, raw.types.upload.File):
                     raise FIleNotFound
 
