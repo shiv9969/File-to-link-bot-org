@@ -33,7 +33,13 @@ async def parse_file_unique_id(message: Message) -> Optional[str]:
 
 
 async def get_file_ids(client: Client, chat_id: int, id: int) -> Optional[FileId]:
-    message = await client.get_messages(chat_id, id)
+    try:
+        message = await client.get_messages(chat_id, id)
+    except Exception as exc:
+        if exc.__class__.__name__ in {"MessageIdInvalid", "MessageEmpty", "PeerIdInvalid"}:
+            raise FIleNotFound from exc
+        raise
+
     if message is None or getattr(message, "empty", False):
         raise FIleNotFound
 
