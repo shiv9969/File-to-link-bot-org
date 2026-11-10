@@ -1,8 +1,7 @@
 import logging
-import math
 import mimetypes
 import re
-import secrets
+import time
 from urllib.parse import quote
 
 from aiohttp import web
@@ -24,7 +23,7 @@ CHUNK_SIZE = 1024 * 1024
 async def root_route_handler(_):
     return web.json_response({
         "server_status": "running",
-        "uptime": get_readable_time(__import__("time").time() - StartTime),
+        "uptime": get_readable_time(time.time() - StartTime),
         "telegram_bot": "@" + StreamBot.username,
         "connected_bots": len(multi_clients),
         "loads": {
@@ -70,7 +69,7 @@ def _parse_byte_range(header, file_size):
     return start, min(end, file_size - 1), True
 
 
-@routes.get(r"/watch/{path:\\S+}", allow_head=True)
+@routes.get(r"/watch/{path:\S+}", allow_head=True)
 async def watch_route_handler(request: web.Request):
     try:
         message_id, secure_hash = _extract_message_and_hash(
@@ -93,7 +92,7 @@ async def watch_route_handler(request: web.Request):
         raise web.HTTPInternalServerError(text="Unable to render file page")
 
 
-@routes.get(r"/{path:\\S+}", allow_head=True)
+@routes.get(r"/{path:\S+}", allow_head=True)
 async def download_route_handler(request: web.Request):
     try:
         message_id, secure_hash = _extract_message_and_hash(
