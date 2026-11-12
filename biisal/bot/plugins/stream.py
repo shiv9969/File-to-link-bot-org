@@ -170,6 +170,20 @@ async def channel_receive_handler(client: Client, broadcast: Message):
             logger.exception("Unable to leave configured banned channel %s", channel_id)
         return
 
+    # Keep channel images as native Telegram media: do not forward them to
+    # the link store, generate URLs, or add STREAM/DOWNLOAD buttons.
+    is_image = bool(broadcast.photo) or bool(
+        broadcast.document
+        and (broadcast.document.mime_type or "").lower().startswith("image/")
+    )
+    if is_image:
+        logger.info(
+            "Skipping link generation and buttons for image message %s in channel %s",
+            broadcast.id,
+            channel_id,
+        )
+        return
+
     try:
         log_message = await _forward_with_flood_wait(broadcast)
         stream_url, download_url = _make_link(log_message)
